@@ -1,6 +1,3 @@
-# coupang-search-list
-쿠팡 검색취합 리스트
-
 import time
 import re
 from datetime import datetime
@@ -27,21 +24,15 @@ browser.get(url)
 browser.implicitly_wait(10)
 browser.find_element(By.ID,'headerSearchKeyword').send_keys(search_product)
 browser.find_element(By.ID,'headerSearchBtn').click()
-time.sleep(10)
-items = browser.find_elements(By.CSS_SELECTOR,'ul.search-product-list > li')
-
+time.sleep(20)
+coupangsource = browser.page_source
+coupangdata = BeautifulSoup(coupangsource,'html.parser')
+items = coupangdata.select('ul.search-product-list > li')
 for item in items:
-
-    if item.find_element(By.CSS_SELECTOR,'span.ad-badge-text'):
+    if 'search-product__ad-badge' in item['class']:
         continue
-    productname = item.find_element(By.CSS_SELECTOR,'dl.search-product-wrap dd.descriptions div.name').text
-    print(productname)
-
-# items = browser.find_elements(By.CSS_SELECTOR,'.search-product-list > li')
-# for item in items:
-#     badge = browser.find_element(By.CSS_SELECTOR,'li.search-product.search-product__ad-badge')
-#     if badge:
-#         pass
-#     productname = item.find_element(By.CSS_SELECTOR,'div.descriptions-inner div.name').text
-#     print(productname)
-    
+    productname = item.select_one('dl.search-product-wrap dd.descriptions div.name').get_text()
+    productprice = item.select_one('dl.search-product-wrap dd.descriptions em strong.price-value').get_text()
+    productreview = item.select_one('dl.search-product-wrap dd.descriptions div.other-info em.rating').get_text()
+    productreviewj = item.select_one('dl.search-product-wrap dd.descriptions div.other-info span.rating-total-count').get_text()[1:-1]
+    print(productname,productprice,productreview,productreviewj)
